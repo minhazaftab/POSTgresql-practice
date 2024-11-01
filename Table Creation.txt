@@ -1,0 +1,67 @@
+-- Table Creation
+CREATE TABLE projects (
+    proj_id SERIAL PRIMARY KEY,
+    proj_name VARCHAR(50),
+    proj_start_date DATE,
+    proj_end_date DATE,
+    proj_manager VARCHAR(50),
+    proj_emp_count INTEGER,
+    proj_cost DECIMAL(10, 2),
+    proj_domain VARCHAR(50),
+    proj_email_id VARCHAR(100),
+    proj_assigned_at TIME
+);
+
+-- Sample Data Insertion
+INSERT INTO projects (proj_name, proj_start_date, proj_end_date, proj_manager, proj_emp_count, proj_cost, proj_domain, proj_email_id, proj_assigned_at)
+VALUES
+('Alpha', '2023-01-01', '2023-12-31', 'John Doe', 10, 10000.00, 'finance', 'john@example.com', '09:00:00'),
+('Beta', '2023-02-01', '2024-02-01', 'Jane Smith', 15, 15000.00, 'healthcare', 'jane@example.com', '10:30:00'),
+('Gamma', '2023-03-01', '2025-03-01', 'Alice Brown', 8, 8000.00, 'education', 'alice@example.com', '14:45:00'),
+('Delta', '2022-07-01', '2023-07-01', 'Bob White', 5, 5000.00, 'healthcare', 'bob@example.com', '08:15:00'),
+('Epsilon', '2023-05-15', '2024-05-15', 'Charlie Black', 20, 20000.00, 'IT', 'charlie@example.com', '11:00:00');
+
+-- 1. Display projects by extracting 5 characters from the project name
+SELECT SUBSTRING(proj_name, 1, 5) AS short_name FROM projects;
+
+-- 2. Display the length of the project manager's name
+SELECT proj_manager, LENGTH(proj_manager) AS manager_name_length FROM projects;
+
+-- 3. Find the total cost of all projects
+SELECT SUM(proj_cost) AS total_cost FROM projects;
+
+-- 4. Find the project with minimum cost
+SELECT * FROM projects WHERE proj_cost = (SELECT MIN(proj_cost) FROM projects);
+
+-- 5. Find projects whose duration is within 3 years
+SELECT * FROM projects WHERE (proj_end_date - proj_start_date) <= INTERVAL '3 years';
+
+-- 6. Find the number of months for every project
+SELECT proj_id, proj_name, EXTRACT(MONTH FROM AGE(proj_end_date, proj_start_date)) AS duration_months FROM projects;
+
+-- 7. Find the least number of employees in a project
+SELECT * FROM projects WHERE proj_emp_count = (SELECT MIN(proj_emp_count) FROM projects);
+
+-- 8. Find the project that will take the maximum number of days to complete
+SELECT * FROM projects WHERE (proj_end_date - proj_start_date) = (SELECT MAX(proj_end_date - proj_start_date) FROM projects);
+
+-- 9. Replace 'healthcare' with 'payment' in project domain if 'healthcare' domain exists
+UPDATE projects SET proj_domain = REPLACE(proj_domain, 'healthcare', 'payment') WHERE proj_domain = 'healthcare';
+
+-- 10. Display double the cost for each project in descending order
+SELECT proj_id, proj_name, (proj_cost * 2) AS double_cost FROM projects ORDER BY double_cost DESC;
+
+-- 11. Display project details with half of the cost for each project in ascending order
+SELECT proj_id, proj_name, (proj_cost / 2) AS half_cost FROM projects ORDER BY half_cost ASC;
+
+-- 12. Display project details by project end date in descending order
+SELECT * FROM projects ORDER BY proj_end_date DESC;
+
+-- 13. Display the rank of the project by project cost in ascending order
+SELECT proj_id, proj_name, proj_cost, RANK() OVER (ORDER BY proj_cost ASC) AS cost_rank FROM projects;
+
+-- 14. Display project details by lag of 3 with a default value 0 for project cost
+SELECT proj_id, proj_name, proj_cost, LAG(proj_cost, 3, 0) OVER (ORDER BY proj_id) AS lag_cost FROM projects;
+
+-- 15. Display the hour of each project that is assigned at
+SELECT proj_id, proj_name, EXTRACT(HOUR FROM proj_assigned_at) AS assigned_hour FROM projects;
